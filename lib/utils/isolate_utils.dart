@@ -11,9 +11,9 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 class IsolateUtils {
   static const String DEBUG_NAME = "InferenceIsolate";
 
-  Isolate _isolate;
+  late Isolate _isolate;
   ReceivePort _receivePort = ReceivePort();
-  SendPort _sendPort;
+  late SendPort _sendPort;
 
   SendPort get sendPort => _sendPort;
 
@@ -33,17 +33,13 @@ class IsolateUtils {
 
     await for (final IsolateData isolateData in port) {
       if (isolateData != null) {
-        Classifier classifier = Classifier(
-            interpreter:
-                Interpreter.fromAddress(isolateData.interpreterAddress),
-            labels: isolateData.labels);
-        imageLib.Image image =
-            ImageUtils.convertCameraImage(isolateData.cameraImage);
+        Classifier classifier = Classifier(interpreter: Interpreter.fromAddress(isolateData.interpreterAddress), labels: isolateData.labels);
+        imageLib.Image image = ImageUtils.convertCameraImage(isolateData.cameraImage);
         if (Platform.isAndroid) {
           image = imageLib.copyRotate(image, 90);
         }
         Map<String, dynamic> results = classifier.predict(image);
-        isolateData.responsePort.send(results);
+        isolateData.responsePort?.send(results);
       }
     }
   }
@@ -54,11 +50,7 @@ class IsolateData {
   CameraImage cameraImage;
   int interpreterAddress;
   List<String> labels;
-  SendPort responsePort;
+  SendPort? responsePort;
 
-  IsolateData(
-    this.cameraImage,
-    this.interpreterAddress,
-    this.labels,
-  );
+  IsolateData(this.cameraImage, this.interpreterAddress, this.labels);
 }

@@ -1,0 +1,22 @@
+{
+  "name": "AppIcons",
+  "css_prefix_text": "",
+  "css_use_suffix": false,
+  "hinting": true,
+  "units_per_em": 1000,
+  "ascent": 850,
+  "glyphs": [
+    {
+      "uid": "e2df3c577fceec26906169fbee71721e",
+      "css": "isight",
+      "code": 61497,
+      "src": "mfglabs"
+    },
+    {
+      "uid": "155970c9f52b23f31026bab7163caa63",
+      "css": "codepen",
+      "code": 62252,
+      "src": "brandico"
+    }
+  ]
+}

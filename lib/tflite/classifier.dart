@@ -12,10 +12,10 @@ import 'stats.dart';
 /// Classifier
 class Classifier {
   /// Instance of Interpreter
-  Interpreter _interpreter;
+  late Interpreter _interpreter;
 
   /// Labels file loaded as list
-  List<String> _labels;
+  late List<String> _labels;
 
   static const String MODEL_FILE_NAME = "detect.tflite";
   static const String LABEL_FILE_NAME = "labelmap.txt";
@@ -27,30 +27,30 @@ class Classifier {
   static const double THRESHOLD = 0.5;
 
   /// [ImageProcessor] used to pre-process the image
-  ImageProcessor imageProcessor;
+  ImageProcessor? imageProcessor;
 
   /// Padding the image to transform into square
-  int padSize;
+  late int padSize;
 
   /// Shapes of output tensors
-  List<List<int>> _outputShapes;
+  List<List<int>> _outputShapes = [];
 
   /// Types of output tensors
-  List<TfLiteType> _outputTypes;
+  List<TfLiteType> _outputTypes = [];
 
   /// Number of results to show
   static const int NUM_RESULTS = 10;
 
   Classifier({
-    Interpreter interpreter,
-    List<String> labels,
+    required Interpreter? interpreter,
+    required List<String> labels,
   }) {
     loadModel(interpreter: interpreter);
     loadLabels(labels: labels);
   }
 
   /// Loads interpreter from asset
-  void loadModel({Interpreter interpreter}) async {
+  void loadModel({required Interpreter? interpreter}) async {
     try {
       _interpreter = interpreter ??
           await Interpreter.fromAsset(
@@ -71,10 +71,9 @@ class Classifier {
   }
 
   /// Loads labels from assets
-  void loadLabels({List<String> labels}) async {
+  void loadLabels({required List<String> labels}) async {
     try {
-      _labels =
-          labels ?? await FileUtil.loadLabels("assets/" + LABEL_FILE_NAME);
+      _labels = labels.isEmpty ? await FileUtil.loadLabels("assets/" + LABEL_FILE_NAME) : labels;
     } catch (e) {
       print("Error while loading labels: $e");
     }
@@ -84,12 +83,9 @@ class Classifier {
   TensorImage getProcessedImage(TensorImage inputImage) {
     padSize = max(inputImage.height, inputImage.width);
     if (imageProcessor == null) {
-      imageProcessor = ImageProcessorBuilder()
-          .add(ResizeWithCropOrPadOp(padSize, padSize))
-          .add(ResizeOp(INPUT_SIZE, INPUT_SIZE, ResizeMethod.BILINEAR))
-          .build();
+      imageProcessor = ImageProcessorBuilder().add(ResizeWithCropOrPadOp(padSize, padSize)).add(ResizeOp(INPUT_SIZE, INPUT_SIZE, ResizeMethod.BILINEAR)).build();
     }
-    inputImage = imageProcessor.process(inputImage);
+    inputImage = imageProcessor!.process(inputImage);
     return inputImage;
   }
 
@@ -99,7 +95,7 @@ class Classifier {
 
     if (_interpreter == null) {
       print("Interpreter not initialized");
-      return null;
+      return {};
     }
 
     var preProcessStart = DateTime.now().millisecondsSinceEpoch;
@@ -110,8 +106,7 @@ class Classifier {
     // Pre-process TensorImage
     inputImage = getProcessedImage(inputImage);
 
-    var preProcessElapsedTime =
-        DateTime.now().millisecondsSinceEpoch - preProcessStart;
+    var preProcessElapsedTime = DateTime.now().millisecondsSinceEpoch - preProcessStart;
 
     // TensorBuffers for output tensors
     TensorBuffer outputLocations = TensorBufferFloat(_outputShapes[0]);
@@ -136,8 +131,7 @@ class Classifier {
     // run inference
     _interpreter.runForMultipleInputs(inputs, outputs);
 
-    var inferenceTimeElapsed =
-        DateTime.now().millisecondsSinceEpoch - inferenceTimeStart;
+    var inferenceTimeElapsed = DateTime.now().millisecondsSinceEpoch - inferenceTimeStart;
 
     // Maximum number of results to show
     int resultsCount = min(NUM_RESULTS, numLocations.getIntValue(0));
@@ -170,8 +164,7 @@ class Classifier {
         // inverse of rect
         // [locations] corresponds to the image size 300 X 300
         // inverseTransformRect transforms it our [inputImage]
-        Rect transformedRect = imageProcessor.inverseTransformRect(
-            locations[i], image.height, image.width);
+        Rect transformedRect = imageProcessor!.inverseTransformRect(locations[i], image.height, image.width);
 
         recognitions.add(
           Recognition(i, label, score, transformedRect),
@@ -179,16 +172,9 @@ class Classifier {
       }
     }
 
-    var predictElapsedTime =
-        DateTime.now().millisecondsSinceEpoch - predictStartTime;
+    var predictElapsedTime = DateTime.now().millisecondsSinceEpoch - predictStartTime;
 
-    return {
-      "recognitions": recognitions,
-      "stats": Stats(
-          totalPredictTime: predictElapsedTime,
-          inferenceTime: inferenceTimeElapsed,
-          preProcessingTime: preProcessElapsedTime)
-    };
+    return {"recognitions": recognitions, "stats": Stats(totalPredictTime: predictElapsedTime, inferenceTime: inferenceTimeElapsed, preProcessingTime: preProcessElapsedTime, totalElapsedTime: predictElapsedTime)};
   }
 
   /// Gets the interpreter instance
