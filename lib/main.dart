@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:object_detection/ui/home_view.dart';
+import 'package:zune/src/providers/ui_provider.dart';
+import 'package:zune/src/screens/menu/splash_screen.dart';
+import 'package:zune/src/screens/scanner_view/scanner_view.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,9 +16,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OKToast(
-      child: MaterialApp(debugShowCheckedModeBanner: false, title: 'Dyvide', initialRoute: '/', routes: <String, WidgetBuilder>{
-        '/': (BuildContext context) => HomeView(),
-      }),
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => UiProvider()),
+        ],
+        child: MaterialApp(debugShowCheckedModeBanner: false, title: 'Zune', initialRoute: '/', routes: <String, WidgetBuilder>{
+          '/': (BuildContext context) => SplashScreen(),
+        }),
+      ),
     );
   }
 }

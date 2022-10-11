@@ -44,7 +44,7 @@ android {
 
     defaultConfig {
         multiDexEnabled true
-        applicationId "com.example.object_detection"
+        applicationId "com.projectk.zune"
         minSdkVersion 26
         targetSdkVersion 31
         versionCode flutterVersionCode.toInteger()

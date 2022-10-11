@@ -7,16 +7,58 @@
   "ascent": 850,
   "glyphs": [
     {
-      "uid": "e2df3c577fceec26906169fbee71721e",
-      "css": "isight",
-      "code": 61497,
-      "src": "mfglabs"
+      "uid": "ef9d2591a233b2933f1a0cfd28338ca1",
+      "css": "ar",
+      "code": 59393,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M392.8 125L500 62.5 607.2 125M500 62.5V218.8M607.2 875L500 937.5 392.8 875M500 937.5V781.3M125 405.3V281.3L228.9 219.7M125 281.3L256.4 359.4M875 594.7V718.8L771.3 780.3M875 718.8L743.6 640.6M228.9 781.3L125 718.8V594.7M125 718.8L255.1 640.6M771.3 219.7L875 281.3V405.3M875 281.3L743.6 359.4M500 625V500L607.2 437.5M500 500L392.8 437.5",
+        "width": 1000
+      },
+      "search": [
+        "ar"
+      ]
     },
     {
-      "uid": "155970c9f52b23f31026bab7163caa63",
-      "css": "codepen",
-      "code": 62252,
-      "src": "brandico"
+      "uid": "886234a51634d85bfa68bfdfbf905587",
+      "css": "link",
+      "code": 61633,
+      "src": "fontawesome5"
+    },
+    {
+      "uid": "e9f1a4a0968111eab72aacfdce5a3d9f",
+      "css": "text-size",
+      "code": 62300,
+      "src": "octicons"
+    },
+    {
+      "uid": "cc3371becff78f78e283deb0628502b6",
+      "css": "home-alt2-svgrepo-com",
+      "code": 59392,
+      "src": "custom_icons",
+      "selected": false,
+      "svg": {
+        "path": "M83.3 500L208.3 387.5M916.7 500L791.7 387.5M791.7 387.5L500 125 208.3 387.5M791.7 387.5V875H208.3V387.5",
+        "width": 1000
+      },
+      "search": [
+        "home-alt2-svgrepo-com"
+      ]
+    },
+    {
+      "uid": "417f81361baa5e74471c9e4268706af6",
+      "css": "logo-apple-ar-svgrepo-com",
+      "code": 59393,
+      "src": "custom_icons",
+      "selected": false,
+      "svg": {
+        "path": "",
+        "width": 1000
+      },
+      "search": [
+        "logo-apple-ar-svgrepo-com"
+      ]
     }
   ]
 }
