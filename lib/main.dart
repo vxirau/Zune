@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:zune/src/providers/ui_provider.dart';
-import 'package:zune/src/screens/menu/splash_screen.dart';
+import 'package:zune/src/screens/loading_screens/splash_screen.dart';
 import 'package:zune/src/screens/scanner_view/scanner_view.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';

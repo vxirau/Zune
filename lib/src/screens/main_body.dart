@@ -1,4 +1,6 @@
 //FLUTTER NATIVE
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -18,6 +20,7 @@ import 'package:zune/src/widgets/text/custom_text.dart';
 //PAQUETS INSTALATS
 import 'package:provider/provider.dart';
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
+import 'package:animations/animations.dart';
 
 class MainBody extends StatefulWidget {
   @override
@@ -28,6 +31,10 @@ class _MainBodyState extends State<MainBody> with SingleTickerProviderStateMixin
   late AnimationController _animationController;
   late Animation<double> animation;
   late CurvedAnimation curve;
+
+  final routeObserver = RouteObserver<PageRoute>();
+
+  GlobalKey _fabKey = GlobalKey();
 
   @override
   void initState() {
@@ -42,7 +49,7 @@ class _MainBodyState extends State<MainBody> with SingleTickerProviderStateMixin
       curve: Interval(
         0.5,
         1.0,
-        curve: Curves.fastOutSlowIn,
+        curve: Curves.decelerate,
       ),
     );
     animation = Tween<double>(
@@ -61,6 +68,9 @@ class _MainBodyState extends State<MainBody> with SingleTickerProviderStateMixin
 
     final iconList = <IconData>[uiProvider.selectedMenuOpt == 0 ? Icons.home_filled : Icons.home_outlined, uiProvider.selectedMenuOpt == 1 ? Icons.person : Icons.person_outline_rounded];
 
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+
     return Scaffold(
         backgroundColor: HexColor.fromHex("#292828"),
         floatingActionButton: ScaleTransition(
@@ -69,40 +79,107 @@ class _MainBodyState extends State<MainBody> with SingleTickerProviderStateMixin
             height: 80.0,
             width: 80.0,
             child: FittedBox(
-              child: FloatingActionButton(
-                elevation: 8,
-                backgroundColor: HexColor.fromHex("#DBFBB5"),
-                child: Icon(
-                  Icons.view_in_ar_rounded,
-                  color: HexColor.fromHex("#8A66E6"),
-                  size: 30,
-                ),
-                onPressed: () async {
-                  uiProvider.selectedMenuOpt = 2;
-                },
+              child: Visibility(
+                visible: uiProvider.isFABVisible,
+                child: _buildFAB(context, uiProvider, width, height, key: _fabKey),
               ),
             ),
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        bottomNavigationBar: AnimatedBottomNavigationBar(
-          icons: iconList,
-          activeIndex: uiProvider.selectedMenuOpt,
-          backgroundColor: HexColor.fromHex("#343334"),
-          activeColor: Colors.white,
-          inactiveColor: Colors.white,
-          iconSize: 30,
-          height: 70,
-          leftCornerRadius: 20,
-          rightCornerRadius: 20,
-          notchAndCornersAnimation: animation,
-          splashSpeedInMilliseconds: 300,
-          gapLocation: GapLocation.center,
-          notchSmoothness: NotchSmoothness.softEdge,
-          onTap: (index) => setState(() => uiProvider.selectedMenuOpt = index),
-          //other params
-        ),
+        bottomNavigationBar: uiProvider.selectedMenuOpt != 2
+            ? AnimatedBottomNavigationBar(
+                icons: iconList,
+                activeIndex: uiProvider.selectedMenuOpt,
+                backgroundColor: HexColor.fromHex("#343334"),
+                activeColor: Colors.white,
+                inactiveColor: Colors.white,
+                iconSize: 30,
+                height: 70,
+                leftCornerRadius: 20,
+                rightCornerRadius: 20,
+                notchAndCornersAnimation: animation,
+                splashSpeedInMilliseconds: 300,
+                gapLocation: GapLocation.center,
+                notchSmoothness: NotchSmoothness.softEdge,
+                onTap: (index) => setState(() => uiProvider.selectedMenuOpt = index),
+                //other params
+              )
+            : null,
         body: SafeArea(child: _HomePageBody()));
+  }
+
+  Widget _buildFAB(context, uiProvider, width, height, {key}) => FloatingActionButton(
+        elevation: 8,
+        backgroundColor: HexColor.fromHex("#DBFBB5"),
+        child: Icon(
+          Icons.view_in_ar_rounded,
+          color: HexColor.fromHex("#8A66E6"),
+          size: 30,
+        ),
+        onPressed: () => _onFabTap(context, uiProvider, width, height),
+      );
+
+  _onFabTap(BuildContext context, uiProvider, width, height) {
+    setState(() => uiProvider.isFabVisible = false);
+
+    Navigator.of(context).push(PageRouteBuilder(
+      transitionDuration: Duration(milliseconds: 500),
+      pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) => ARView(),
+      transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) => _buildTransition(child, animation, Size(80, 80), Offset(width / 2, height), width, height, uiProvider),
+    ));
+  }
+
+  Widget _buildTransition(Widget page, Animation<double> animation, Size fabSize, Offset fabOffset, width, height, uiProvider) {
+    if (animation.value == 1) return page;
+
+    final borderTween = BorderRadiusTween(
+      begin: BorderRadius.circular(fabSize.width / 2),
+      end: BorderRadius.circular(0.0),
+    );
+    final sizeTween = SizeTween(
+      begin: fabSize,
+      end: MediaQuery.of(context).size,
+    );
+    final offsetTween = Tween<Offset>(
+      begin: fabOffset,
+      end: Offset.zero,
+    );
+
+    final easeInAnimation = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeIn,
+    );
+    final easeAnimation = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeOut,
+    );
+
+    final radius = borderTween.evaluate(easeInAnimation);
+    final offset = offsetTween.evaluate(animation);
+    final size = sizeTween.evaluate(easeInAnimation);
+
+    final transitionFab = Opacity(
+      opacity: 1 - easeAnimation.value,
+      child: _buildFAB(context, uiProvider, width, height),
+    );
+
+    Widget positionedClippedChild(Widget child) => Positioned(
+        width: size!.width,
+        height: size.height,
+        left: offset.dx,
+        top: offset.dy,
+        child: ClipRRect(
+          borderRadius: radius,
+          child: child,
+        ));
+
+    return Stack(
+      children: [
+        positionedClippedChild(page),
+        positionedClippedChild(transitionFab),
+      ],
+    );
   }
 }
 
@@ -118,7 +195,7 @@ class _HomePageBody extends StatelessWidget {
         return Profile();
 
       case 2:
-        return ScannerView();
+        return ARView();
 
       default:
         return Container(
