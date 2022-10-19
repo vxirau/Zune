@@ -139,7 +139,7 @@ class _MainBodyState extends State<MainBody> with SingleTickerProviderStateMixin
     );
     final sizeTween = SizeTween(
       begin: fabSize,
-      end: MediaQuery.of(context).size,
+      end: mounted ? MediaQuery.of(context).size : Size(0, 0),
     );
     final offsetTween = Tween<Offset>(
       begin: fabOffset,

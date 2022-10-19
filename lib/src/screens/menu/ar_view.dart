@@ -1,21 +1,23 @@
+//FLUTTER NATIVE
 import 'dart:math';
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+
+//MODELS
 import 'package:zune/src/models/utilities/hex_color.dart';
+
+//WIDGETS
+import 'package:zune/src/widgets/widgets.dart';
+
+//PAQUETS INSTALATS
+import 'package:provider/provider.dart';
 import 'package:zune/src/providers/ui_provider.dart';
-import 'package:zune/src/widgets/cards/circular_icon.dart';
-import 'package:zune/src/widgets/sliders/confirmation_slider.dart';
-import 'package:zune/src/widgets/text/custom_text.dart';
 
 class ARView extends StatefulWidget {
   @override
   State<ARView> createState() => _ARViewState();
 }
 
-class _ARViewState extends State<ARView> {
+class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
   bool isColored = false;
   bool pendingAnimation = true;
 
@@ -23,12 +25,49 @@ class _ARViewState extends State<ARView> {
 
   bool _pressed = false;
 
+  double minSize = 0.0;
+
+  DraggableScrollableController _dragController = DraggableScrollableController();
+
+  Animation<double>? closedAnimation;
+  late AnimationController controller;
+  double maxSize = 0.01;
+
+  @override
+  void initState() {
+    controller = AnimationController(vsync: this, duration: Duration(seconds: 1));
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _dragController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     UiProvider uiProvider = Provider.of<UiProvider>(context);
 
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
+
+    if (closedAnimation == null) {
+      closedAnimation = Tween<double>(begin: 130, end: height - 150).animate(controller)
+        ..addListener(() {
+          setState(() {});
+        });
+    }
+
+    /*
+    
+    130 --> 0.0
+    height - 150 --> 0.9
+
+    (150-130)/(0.9-0.0) = 20
+    
+    */
 
     if (pendingAnimation) {
       Future.microtask(() async {
@@ -90,12 +129,56 @@ class _ARViewState extends State<ARView> {
                           )),
                     ),
                   ),
+                  DraggableScrollableSheet(
+                    controller: _dragController,
+                    initialChildSize: (closedAnimation!.value - 130) < 0 ? 0.0 : (closedAnimation!.value - 130) / ((height - 150 - 130) / 0.9),
+                    minChildSize: (closedAnimation!.value - 130) < 0 ? 0.0 : (closedAnimation!.value - 130) / ((height - 150 - 130) / 0.9),
+                    maxChildSize: maxSize,
+                    builder: (BuildContext context, ScrollController scrollController) {
+                      return Container(
+                          height: height * 0.9,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(topRight: const Radius.circular(20.0), topLeft: Radius.circular(20.0)),
+                            color: HexColor.fromHex("#292828"),
+                            boxShadow: [
+                              const BoxShadow(color: Colors.black54, spreadRadius: 1, blurRadius: 1),
+                            ],
+                          ),
+                          child: ListView(controller: scrollController, physics: BouncingScrollPhysics(), children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 15.0, top: 35),
+                              child: CustomText(
+                                "Detected Objects",
+                                fontWeight: FontWeight.bold,
+                                color: HexColor.fromHex("#DBFBB5"),
+                                fontSize: 20,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 25,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20.0, right: 20),
+                              child: GridView.count(
+                                  physics: NeverScrollableScrollPhysics(), // to disable GridView's scrolling
+                                  shrinkWrap: true,
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 20,
+                                  mainAxisSpacing: 20,
+                                  children: _generateGridChildren()),
+                            ),
+                            const SizedBox(
+                              height: 25,
+                            ),
+                          ]));
+                    },
+                  ),
                   _pressed
                       ? Align(
                           alignment: Alignment.bottomCenter,
                           child: Container(
                             height: 160,
-                            width: 60,
+                            width: 70,
                             margin: EdgeInsets.only(bottom: 30),
                             decoration: BoxDecoration(
                               color: Colors.white60,
@@ -105,33 +188,63 @@ class _ARViewState extends State<ARView> {
                         )
                       : SizedBox.shrink(),
                   hasAccepted
-                      ? Positioned(
+                      ? (Positioned(
                           left: 0,
                           right: 0,
-                          bottom: 130,
-                          child: CircularIcon(
-                            spreadRadius: 1,
-                            wantsShadow: true,
-                            blurRadius: 2,
-                            backgroundColor: Colors.black87,
-                            child: Transform.rotate(
-                              angle: pi,
-                              child: Icon(
-                                Icons.keyboard_arrow_up_rounded,
-                                color: Colors.white,
-                                size: 40,
+                          bottom: closedAnimation!.value < 0 ? 0 : closedAnimation!.value,
+                          child: GestureDetector(
+                            onTap: closedAnimation!.value == height - 150
+                                ? () async {
+                                    closedAnimation = Tween<double>(begin: 30, end: height - 150).animate(controller)
+                                      ..addListener(() {
+                                        setState(() {});
+                                      });
+                                    _dragController.animateTo(0.0, duration: Duration(milliseconds: 500), curve: Curves.easeOut);
+                                    setState(() {});
+                                    await controller.reverse();
+
+                                    hasAccepted = false;
+                                    _pressed = false;
+                                    setState(() {});
+                                  }
+                                : null,
+                            child: CircularIcon(
+                              spreadRadius: 1,
+                              wantsShadow: !hasAccepted,
+                              blurRadius: 2,
+                              backgroundColor: HexColor.fromHex("#292828"),
+                              height: 70,
+                              width: 70,
+                              child: Transform.rotate(
+                                angle: pi,
+                                child: Icon(
+                                  Icons.keyboard_arrow_up_rounded,
+                                  color: Colors.white,
+                                  size: 55,
+                                ),
                               ),
                             ),
                           ),
-                        )
+                        ))
                       : DraggableConfirmationSlider(onStarted: () {
                           _pressed = true;
                           setState(() {});
-                        }, onEnded: (isSuccessful) {
+                        }, onEnded: (isSuccessful) async {
                           hasAccepted = isSuccessful;
+                          if (isSuccessful) {
+                            maxSize = 0.9;
+                            setState(() {});
+                            controller.forward();
+
+                            // if (_dragController.isAttached) {
+                            //   _dragController.animateTo(0.9, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut).then((value) {
+                            //     minSize = 0.9;
+                            //   });
+                            // }
+                          }
                           _pressed = false;
                           setState(() {});
-                        })
+                        }),
                 ],
               ),
             ),
@@ -139,5 +252,13 @@ class _ARViewState extends State<ARView> {
         ),
       ),
     );
+  }
+
+  List<Widget> _generateGridChildren() {
+    return List.generate(10, (index) {
+      return GridCard(index, onClick: (ind) {
+        print("Detected: $ind");
+      });
+    });
   }
 }

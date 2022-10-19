@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:zune/src/models/utilities/hex_color.dart';
 import 'package:zune/src/widgets/cards/circular_icon.dart';
 
 class DraggableConfirmationSlider extends StatefulWidget {
@@ -70,13 +71,15 @@ class _DraggableConfirmationSliderState extends State<DraggableConfirmationSlide
               spreadRadius: 1,
               wantsShadow: true,
               blurRadius: 2,
-              backgroundColor: _pressed ? Colors.black87 : Colors.red.shade600,
+              height: 70,
+              width: 70,
+              backgroundColor: _pressed ? HexColor.fromHex("#292828") : Colors.red.shade600,
               child: Transform.rotate(
                 angle: angle,
                 child: Icon(
                   _pressed ? Icons.keyboard_arrow_up_rounded : Icons.close,
                   color: Colors.white,
-                  size: _pressed ? 40 : 28,
+                  size: _pressed ? 55 : 35,
                 ),
               ),
             ),
