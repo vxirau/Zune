@@ -117,13 +117,9 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
 
         var uiThreadInferenceElapsedTime = DateTime.now().millisecondsSinceEpoch - uiThreadTimeStart;
 
-        // pass results to HomeView
         widget.resultsCallback(inferenceResults["recognitions"]);
-
-        // pass stats to HomeView
         widget.statsCallback((inferenceResults["stats"] as Stats)..totalElapsedTime = uiThreadInferenceElapsedTime);
 
-        // set predicting to false to allow new frames
         if (mounted) {
           setState(() {
             predicting = false;
