@@ -13,13 +13,9 @@ import 'package:zune/src/screens/scanner_view/camera_view_singleton.dart';
 
 /// [CameraView] sends each frame for inference
 class CameraView extends StatefulWidget {
-  /// Callback to pass results after inference to [HomeView]
   final Function(List<Recognition> recognitions) resultsCallback;
-
-  /// Callback to inference stats to [HomeView]
   final Function(Stats stats) statsCallback;
 
-  /// Constructor
   const CameraView(this.resultsCallback, this.statsCallback);
   @override
   _CameraViewState createState() => _CameraViewState();
@@ -50,27 +46,21 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   void initStateAsync() async {
     WidgetsBinding.instance.addObserver(this);
 
-    // Spawn a new isolate
     isolateUtils = IsolateUtils();
     await isolateUtils.start();
-
-    // Camera initialization
     await initializeCamera();
 
     // Create an instance of classifier to load model and labels
     //TODO: REVISAR AIXÒ PERQUE NO TINC NI IDEA DE COM FUNCIONA
     classifier = Classifier(interpreter: null, labels: []);
 
-    // Initially predicting = false
     predicting = false;
   }
 
-  /// Initializes the camera by setting [cameraController]
   Future<void> initializeCamera() async {
     cameras = await availableCameras();
 
-    // cameras[0] for rear-camera
-    cameraController = CameraController(cameras[0], ResolutionPreset.low, enableAudio: false);
+    cameraController = CameraController(cameras[0], ResolutionPreset.high, enableAudio: false);
 
     if (mounted) {
       cameraController!.initialize().then((_) async {
@@ -81,13 +71,9 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
           /// previewSize is size of each image frame captured by controller
           ///
           /// 352x288 on iOS, 240p (320x240) on Android with ResolutionPreset.low
-          Size previewSize = cameraController!.value.previewSize == null ? Size(10, 10) : cameraController!.value.previewSize!;
+          Size previewSize = cameraController!.value.previewSize == null ? MediaQuery.of(context).size : cameraController!.value.previewSize!;
 
-          /// previewSize is size of raw input image to the model
           CameraViewSingleton.inputImageSize = previewSize;
-
-          // the display width of image on screen is
-          // same as screenWidth while maintaining the aspectRatio
           Size screenSize = MediaQuery.of(context).size;
           CameraViewSingleton.screenSize = screenSize;
           CameraViewSingleton.ratio = screenSize.width / previewSize.height;
@@ -98,18 +84,17 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    // Return empty container while the camera is not initialized
-    if (cameraController == null) {
+    if (cameraController == null || cameraController!.value.isInitialized == false) {
       return Container();
     }
 
-    return AspectRatio(aspectRatio: cameraController!.value.aspectRatio, child: CameraPreview(cameraController!));
+    double scale = 1 / (cameraController!.value.aspectRatio * MediaQuery.of(context).size.aspectRatio);
+    print(scale);
+    return Transform.scale(scale: scale, alignment: Alignment.center, child: CameraPreview(cameraController!));
   }
 
-  /// Callback to receive each frame [CameraImage] perform inference on it
   onLatestImageAvailable(CameraImage cameraImage) async {
     if (classifier.interpreter != null && classifier.labels != null) {
-      // If previous inference has not completed then return
       if (predicting) {
         return;
       }
@@ -148,7 +133,6 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     }
   }
 
-  /// Runs inference in another isolate
   Future<Map<String, dynamic>> inference(IsolateData isolateData) async {
     ReceivePort responsePort = ReceivePort();
     isolateUtils.sendPort.send(isolateData..responsePort = responsePort.sendPort);

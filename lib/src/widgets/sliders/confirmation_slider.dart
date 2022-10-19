@@ -73,12 +73,12 @@ class _DraggableConfirmationSliderState extends State<DraggableConfirmationSlide
               blurRadius: 2,
               height: 70,
               width: 70,
-              backgroundColor: _pressed ? HexColor.fromHex("#292828") : Colors.red.shade600,
+              backgroundColor: _pressed ? HexColor.fromHex("#292828") : Colors.white,
               child: Transform.rotate(
                 angle: angle,
                 child: Icon(
                   _pressed ? Icons.keyboard_arrow_up_rounded : Icons.close,
-                  color: Colors.white,
+                  color: _pressed ? Colors.white : Colors.red,
                   size: _pressed ? 55 : 35,
                 ),
               ),

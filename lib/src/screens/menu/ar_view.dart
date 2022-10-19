@@ -1,9 +1,12 @@
 //FLUTTER NATIVE
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:zune/src/models/models.dart';
 
 //MODELS
 import 'package:zune/src/models/utilities/hex_color.dart';
+import 'package:zune/src/screens/scanner_view/box_widget.dart';
+import 'package:zune/src/screens/scanner_view/camera_view.dart';
 
 //WIDGETS
 import 'package:zune/src/widgets/widgets.dart';
@@ -33,10 +36,13 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
   late AnimationController controller;
   double maxSize = 0.01;
 
+  List<Recognition> results = [];
+
+  Stats? stats;
+
   @override
   void initState() {
     controller = AnimationController(vsync: this, duration: Duration(seconds: 1));
-
     super.initState();
   }
 
@@ -98,10 +104,11 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
                     alignment: Alignment.center,
                     child: ColorFiltered(
                       colorFilter: ColorFilter.mode(_pressed ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0), BlendMode.darken),
-                      child: Container(
-                        height: height,
-                        width: width,
-                        color: Colors.blue.shade100,
+                      child: Stack(
+                        children: [
+                          Center(child: CameraView(resultsCallback, statsCallback)),
+                          boundingBoxes(results),
+                        ],
                       ),
                     ),
                   ),
@@ -119,6 +126,10 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
                           icon: Container(
                             height: 50,
                             width: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                             child: Center(
                               child: Icon(
                                 Icons.keyboard_arrow_left_rounded,
@@ -235,12 +246,6 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
                             maxSize = 0.9;
                             setState(() {});
                             controller.forward();
-
-                            // if (_dragController.isAttached) {
-                            //   _dragController.animateTo(0.9, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut).then((value) {
-                            //     minSize = 0.9;
-                            //   });
-                            // }
                           }
                           _pressed = false;
                           setState(() {});
@@ -252,6 +257,36 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  Widget boundingBoxes(List<Recognition> results) {
+    if (results == null) {
+      return Container();
+    }
+    return Stack(
+      children: results
+          .map((e) => BoxWidget(
+                result: e,
+              ))
+          .toList(),
+    );
+  }
+
+  void resultsCallback(List<Recognition> results) {
+    if (mounted) {
+      setState(() {
+        this.results = results;
+      });
+    }
+  }
+
+  /// Callback to get inference stats from [CameraView]
+  void statsCallback(Stats stats) {
+    if (mounted) {
+      setState(() {
+        this.stats = stats;
+      });
+    }
   }
 
   List<Widget> _generateGridChildren() {
