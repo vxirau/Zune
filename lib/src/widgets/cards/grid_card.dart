@@ -4,9 +4,10 @@ import 'package:zune/src/widgets/text/custom_text.dart';
 
 class GridCard extends StatelessWidget {
   int index;
+  String label;
   Function onClick;
 
-  GridCard(this.index, {required this.onClick});
+  GridCard(this.index, this.label, {required this.onClick});
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +29,7 @@ class GridCard extends StatelessWidget {
                 ),
               ],
             ),
+            child: Center(child: CustomText(label, color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
           ),
           Align(
             alignment: Alignment.topRight,

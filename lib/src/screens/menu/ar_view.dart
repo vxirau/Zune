@@ -37,6 +37,7 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
   double maxSize = 0.01;
 
   List<Recognition> results = [];
+  List<Recognition> dialog = [];
 
   Stats? stats;
 
@@ -176,7 +177,7 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
                                   crossAxisCount: 2,
                                   crossAxisSpacing: 20,
                                   mainAxisSpacing: 20,
-                                  children: _generateGridChildren()),
+                                  children: _generateGridChildren(dialog)),
                             ),
                             const SizedBox(
                               height: 25,
@@ -244,6 +245,7 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
                           hasAccepted = isSuccessful;
                           if (isSuccessful) {
                             maxSize = 0.9;
+                            dialog = results;
                             setState(() {});
                             controller.forward();
                           }
@@ -272,8 +274,16 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
     );
   }
 
+  // Future<void> funcion() async{
+  //   for(){
+
+  //     }
+
+  // }
+
   void resultsCallback(List<Recognition> results) {
     if (mounted) {
+      //funcion();
       setState(() {
         this.results = results;
       });
@@ -289,11 +299,11 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
     }
   }
 
-  List<Widget> _generateGridChildren() {
-    return List.generate(10, (index) {
-      return GridCard(index, onClick: (ind) {
-        print("Detected: $ind");
-      });
-    });
+  List<Widget> _generateGridChildren(List<Recognition> dialog) {
+    return dialog
+        .map((e) => GridCard(e.id, e.label, onClick: (ind) {
+              print("Detected: $ind");
+            }))
+        .toList();
   }
 }
