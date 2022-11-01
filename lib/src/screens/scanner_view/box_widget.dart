@@ -26,17 +26,26 @@ class BoxWidget extends StatelessWidget {
         onTap: () {
           print(result.label);
         },
-        child: Container(
-          width: 60, //result.renderLocation.width,
-          height: 60, //result.renderLocation.height,
-          decoration: BoxDecoration(shape: BoxShape.circle, color: HexColor.fromHex("#DBFBB5").withAlpha(40)),
-          child: Center(
-            child: Container(
-              height: 30,
-              width: 30,
-              decoration: BoxDecoration(shape: BoxShape.circle, color: HexColor.fromHex("#DBFBB5")),
+        child: Column(
+          children: [
+            Container(
+              width: 60, //result.renderLocation.width,
+              height: 60, //result.renderLocation.height,
+              decoration: BoxDecoration(shape: BoxShape.circle, color: HexColor.fromHex("#DBFBB5").withAlpha(40)),
+              child: Center(
+                child: Container(
+                  height: 30,
+                  width: 30,
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: HexColor.fromHex("#DBFBB5")),
+                ),
+              ),
             ),
-          ),
+            CustomText(
+              "${result.label}-${result.score.toStringAsFixed(2)}",
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            )
+          ],
         ),
       ),
     );

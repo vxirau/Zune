@@ -12,7 +12,6 @@ class Recognition {
   /// Label of the result
   String _label;
 
-  /// Confidence [0.0, 1.0]
   double _score;
 
   /// Location of bounding box rect
