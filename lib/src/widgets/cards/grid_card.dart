@@ -4,10 +4,11 @@ import 'package:zune/src/widgets/text/custom_text.dart';
 
 class GridCard extends StatelessWidget {
   int index;
+  bool? isSaved;
   String label;
   Function onClick;
 
-  GridCard(this.index, this.label, {required this.onClick});
+  GridCard(this.index, this.label, {required this.isSaved, required this.onClick});
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +39,10 @@ class GridCard extends StatelessWidget {
               width: 30,
               margin: const EdgeInsets.only(top: 5, right: 5),
               decoration: BoxDecoration(
-                color: HexColor.fromHex("#DBFBB5"),
+                color: isSaved != null && isSaved! ? HexColor.fromHex("#DBFBB5") : HexColor.fromHex("#8A66E6"),
                 borderRadius: BorderRadius.circular(5),
               ),
-              child: Center(child: CustomText("$index", color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
+              child: Center(child: CustomText("$index", color: isSaved != null && isSaved! ? Colors.black : Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
             ),
           )
         ],

@@ -83,7 +83,7 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     }
 
     double scale = 1 / (cameraController!.value.aspectRatio * MediaQuery.of(context).size.aspectRatio);
-    print(scale);
+    //print(scale);
     return Transform.scale(scale: scale, alignment: Alignment.center, child: CameraPreview(cameraController!));
   }
 

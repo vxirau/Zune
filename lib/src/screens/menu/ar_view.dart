@@ -3,11 +3,14 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
+import 'package:zune/src/db/boxes.dart';
 
 import 'package:zune/src/models/models.dart';
 
 //MODELS
 import 'package:zune/src/models/utilities/hex_color.dart';
+import 'package:zune/src/providers/recognition_provider.dart';
 import 'package:zune/src/screens/scanner_view/box_widget.dart';
 import 'package:zune/src/screens/scanner_view/camera_view.dart';
 
@@ -25,7 +28,6 @@ class ARView extends StatefulWidget {
   });
   @override
   State<ARView> createState() => _ARViewState();
-
 }
 
 class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
@@ -74,15 +76,6 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
           setState(() {});
         });
     }
-
-    /*
-    
-    130 --> 0.0
-    height - 150 --> 0.9
-
-    (150-130)/(0.9-0.0) = 20
-    
-    */
 
     if (pendingAnimation) {
       Future.microtask(() async {
@@ -292,8 +285,15 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
 
   void resultsCallback(List<Recognition> results) {
     if (mounted) {
-      //funcion();
+      final recProvider = Provider.of<RecognitionProvider>(context, listen: false);
       setState(() {
+        for (var j = 0; j < recProvider.recognitions.length; j++) {
+          if (recProvider.recognitions[j].label == results[j].label) {
+            results[j].action = recProvider.recognitions[j].action;
+            results[j].type = recProvider.recognitions[j].type;
+            results[j].isSaved = true;
+          }
+        }
         this.results = results;
       });
     }
@@ -310,8 +310,17 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
 
   List<Widget> _generateGridChildren(List<Recognition> dialog) {
     return dialog
-        .map((e) => GridCard(e.id, e.label, onClick: (ind) {
-              print("Detected: $ind");
+        .map((e) => GridCard(e.id, e.label, isSaved: e.isSaved, onClick: (ind) {
+              showAnimatedDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return ObjectDialog(obj: e);
+                },
+                animationType: DialogTransitionType.fadeScale,
+                curve: Curves.fastOutSlowIn,
+                duration: Duration(milliseconds: 500),
+              );
             }))
         .toList();
   }

@@ -2,7 +2,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:zune/src/models/tflite/recognition.dart';
 import 'package:zune/src/providers/loc_provider.dart';
+import 'package:zune/src/providers/recognition_provider.dart';
 
 //SCREENS
 import 'package:zune/src/screens/main_body.dart';
@@ -24,13 +26,13 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     final locProvider = Provider.of<LocProvider>(context);
-      
+
     if (SplashScreen.hasLoaded) {
       return MainBody();
     }
 
     return FutureBuilder(
-        future: _gestionaPos(context,locProvider),
+        future: _gestionaPos(context, locProvider),
         builder: (c, AsyncSnapshot asyncSnapshot) {
           if (asyncSnapshot.hasError) {
             return Container(
@@ -73,13 +75,13 @@ class _SplashScreenState extends State<SplashScreen> {
     return completer.future;
   }
 
-  Future _gestionaAsync(context) async {
-    await Future.delayed(Duration(seconds: 1));
-    return 1;
-  }
-
-  Future _gestionaPos(context, provider) async{
+  Future _gestionaPos(context, provider) async {
     await provider.getCurrentPosition();
+
+    final rprov = Provider.of<RecognitionProvider>(context, listen: false);
+
+    await rprov.getAllRecognitions();
+
     return 1;
   }
 }

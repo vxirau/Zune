@@ -5,22 +5,35 @@ import 'package:flutter/cupertino.dart';
 //SCREENS
 import 'package:zune/src/screens/scanner_view/camera_view_singleton.dart';
 
-class Recognition {
-  /// Index of the result
+//PAQUETS INSTALATS
+import 'package:hive/hive.dart';
+
+//ADAPTERS
+part 'recognition.g.dart';
+
+@HiveType(typeId: 0)
+class Recognition extends HiveObject {
+  @HiveField(0)
   int _id;
 
-  /// Label of the result
+  @HiveField(1)
   String _label;
 
+  @HiveField(2)
   double _score;
 
-  /// Location of bounding box rect
-  ///
-  /// The rectangle corresponds to the raw input image
-  /// passed for inference
+  @HiveField(3)
+  int? type;
+
+  @HiveField(4)
+  String? action;
+
   Rect? _location;
 
-  Recognition(this._id, this._label, this._score, [this._location]);
+  @HiveField(6)
+  bool? isSaved;
+
+  Recognition(this._id, this._label, this._score, [this._location, this.type]);
 
   int get id => _id;
 
@@ -30,15 +43,7 @@ class Recognition {
 
   Rect? get location => _location;
 
-  /// Returns bounding box rectangle corresponding to the
-  /// displayed image on screen
-  ///
-  /// This is the actual location where rectangle is rendered on
-  /// the screen
   Rect get renderLocation {
-    // ratioX = screenWidth / imageInputWidth
-    // ratioY = ratioX if image fits screenWidth with aspectRatio = constant
-
     double ratioX = CameraViewSingleton.ratio;
     double ratioY = ratioX;
 
