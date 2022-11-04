@@ -10,6 +10,7 @@ import 'package:zune/src/models/tflite/recognition.dart';
 import 'package:image/image.dart' as imageLib;
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
+import 'package:zune/src/models/utilities/string_extension.dart';
 
 import 'stats.dart';
 
@@ -17,26 +18,21 @@ class Classifier {
   late Interpreter _interpreter;
   late List<String> _labels;
 
-  static const String MODEL_FILE_NAME = "detect.tflite";
-  static const String LABEL_FILE_NAME = "labelmap.txt";
+  static const String MODEL_FILE_NAME = "prova.tflite";
+  static const String LABEL_FILE_NAME = "coco.txt";
 
-  /// Input size of image (height = width = 300)
-  static const int INPUT_SIZE = 300;
+  static const int INPUT_SIZE = 320;
 
   /// Result score threshold
-  static const double THRESHOLD = 0.5;
+  static const double THRESHOLD = 0.3;
 
   ImageProcessor? imageProcessor;
   late int padSize;
 
-  /// Shapes of output tensors
   List<List<int>> _outputShapes = [];
-
-  /// Types of output tensors
   List<TfLiteType> _outputTypes = [];
 
-  /// Number of results to show
-  static const int NUM_RESULTS = 10;
+  static const int NUM_RESULTS = 40;
 
   Classifier({
     required Interpreter? interpreter,
@@ -123,7 +119,6 @@ class Classifier {
 
     var inferenceTimeStart = DateTime.now().millisecondsSinceEpoch;
 
-    // run inference
     _interpreter.runForMultipleInputs(inputs, outputs);
 
     var inferenceTimeElapsed = DateTime.now().millisecondsSinceEpoch - inferenceTimeStart;
@@ -153,12 +148,10 @@ class Classifier {
 
       // Label string
       var labelIndex = outputClasses.getIntValue(i) + labelOffset;
-      var label = _labels.elementAt(labelIndex);
+      String label = _labels.elementAt(labelIndex);
+      label = label.capitalize();
 
       if (score > THRESHOLD) {
-        // inverse of rect
-        // [locations] corresponds to the image size 300 X 300
-        // inverseTransformRect transforms it our [inputImage]
         Rect transformedRect = imageProcessor!.inverseTransformRect(locations[i], image.height, image.width);
 
         recognitions.add(

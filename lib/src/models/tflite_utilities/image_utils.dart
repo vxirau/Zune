@@ -8,7 +8,6 @@ import 'package:image/image.dart' as imageLib;
 
 /// ImageUtils
 class ImageUtils {
-  /// Converts a [CameraImage] in YUV420 format to [imageLib.Image] in RGB format
   static imageLib.Image convertCameraImage(CameraImage cameraImage) {
     if (cameraImage.format.group == ImageFormatGroup.yuv420) {
       return convertYUV420ToImage(cameraImage);
@@ -19,13 +18,11 @@ class ImageUtils {
     }
   }
 
-  /// Converts a [CameraImage] in BGRA888 format to [imageLib.Image] in RGB format
   static imageLib.Image convertBGRA8888ToImage(CameraImage cameraImage) {
     imageLib.Image img = imageLib.Image.fromBytes(cameraImage.planes[0].width!, cameraImage.planes[0].height!, cameraImage.planes[0].bytes, format: imageLib.Format.bgra);
     return img;
   }
 
-  /// Converts a [CameraImage] in YUV420 format to [imageLib.Image] in RGB format
   static imageLib.Image convertYUV420ToImage(CameraImage cameraImage) {
     final int width = cameraImage.width;
     final int height = cameraImage.height;
@@ -50,7 +47,6 @@ class ImageUtils {
     return image;
   }
 
-  /// Convert a single YUV pixel to RGB
   static int yuv2rgb(int y, int u, int v) {
     // Convert yuv pixel to rgb
     int r = (y + v * 1436 / 1024 - 179).round();

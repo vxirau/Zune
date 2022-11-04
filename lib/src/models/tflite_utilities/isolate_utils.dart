@@ -11,7 +11,6 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:camera/camera.dart';
 import 'package:image/image.dart' as imageLib;
 
-/// Manages separate Isolate instance for inference
 class IsolateUtils {
   static const String DEBUG_NAME = "InferenceIsolate";
 
@@ -49,7 +48,6 @@ class IsolateUtils {
   }
 }
 
-/// Bundles data to pass between Isolate
 class IsolateData {
   CameraImage cameraImage;
   int interpreterAddress;

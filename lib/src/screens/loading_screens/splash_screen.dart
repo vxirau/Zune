@@ -1,6 +1,8 @@
 //FLUTTER NATIVE
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:zune/src/providers/loc_provider.dart';
 
 //SCREENS
 import 'package:zune/src/screens/main_body.dart';
@@ -21,12 +23,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final locProvider = Provider.of<LocProvider>(context);
+      
     if (SplashScreen.hasLoaded) {
       return MainBody();
     }
 
     return FutureBuilder(
-        future: _gestionaAsync(context),
+        future: _gestionaPos(context,locProvider),
         builder: (c, AsyncSnapshot asyncSnapshot) {
           if (asyncSnapshot.hasError) {
             return Container(
@@ -71,6 +75,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future _gestionaAsync(context) async {
     await Future.delayed(Duration(seconds: 1));
+    return 1;
+  }
+
+  Future _gestionaPos(context, provider) async{
+    await provider.getCurrentPosition();
     return 1;
   }
 }

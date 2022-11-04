@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 //MODELS
 import 'package:zune/src/models/utilities/app_colors.dart';
 import 'package:zune/src/models/utilities/hex_color.dart';
+import 'package:zune/src/providers/loc_provider.dart';
 
 //SCREENS
 import 'package:zune/src/screens/screens.dart';
@@ -62,6 +63,12 @@ class _MainBodyState extends State<MainBody> with SingleTickerProviderStateMixin
     super.initState();
   }
 
+@override
+void dispose() {
+  _animationController.dispose();
+  super.dispose();
+}
+
   @override
   Widget build(BuildContext context) {
     UiProvider uiProvider = Provider.of<UiProvider>(context);
@@ -73,6 +80,7 @@ class _MainBodyState extends State<MainBody> with SingleTickerProviderStateMixin
 
     return Scaffold(
         backgroundColor: HexColor.fromHex("#292828"),
+        resizeToAvoidBottomInset: false,
         floatingActionButton: ScaleTransition(
           scale: animation,
           child: Container(
@@ -187,6 +195,7 @@ class _HomePageBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final uiProvider = Provider.of<UiProvider>(context);
+
 
     switch (uiProvider.selectedMenuOpt) {
       case 0:

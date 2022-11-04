@@ -50,7 +50,6 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     await isolateUtils.start();
     await initializeCamera();
 
-    // Create an instance of classifier to load model and labels
     //TODO: REVISAR AIXÒ PERQUE NO TINC NI IDEA DE COM FUNCIONA
     classifier = Classifier(interpreter: null, labels: []);
 
@@ -64,13 +63,8 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
 
     if (mounted) {
       cameraController!.initialize().then((_) async {
-        // Stream of image passed to [onLatestImageAvailable] callback
         if (mounted) {
           await cameraController!.startImageStream(onLatestImageAvailable);
-
-          /// previewSize is size of each image frame captured by controller
-          ///
-          /// 352x288 on iOS, 240p (320x240) on Android with ResolutionPreset.low
           Size previewSize = cameraController!.value.previewSize == null ? MediaQuery.of(context).size : cameraController!.value.previewSize!;
 
           CameraViewSingleton.inputImageSize = previewSize;
@@ -136,6 +130,16 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     return results;
   }
 
+  void startCamera() {
+    Future.delayed(Duration(seconds: 1), () async {
+      try {
+        await cameraController!.startImageStream(onLatestImageAvailable);
+      } catch (e) {
+        startCamera();
+      }
+    });
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
@@ -144,7 +148,7 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
         break;
       case AppLifecycleState.resumed:
         if (!cameraController!.value.isStreamingImages) {
-          await cameraController!.startImageStream(onLatestImageAvailable);
+          startCamera();
         }
         break;
       default:

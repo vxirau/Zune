@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:zune/src/providers/ui_provider.dart';
+import 'package:zune/src/providers/loc_provider.dart';
+
 import 'package:zune/src/screens/loading_screens/splash_screen.dart';
 import 'package:zune/src/screens/scanner_view/scanner_view.dart';
 import 'package:oktoast/oktoast.dart';
@@ -19,6 +21,7 @@ class MyApp extends StatelessWidget {
       child: MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => UiProvider()),
+          ChangeNotifierProvider(create: (_) => LocProvider(), lazy: false),
         ],
         child: MaterialApp(debugShowCheckedModeBanner: false, title: 'Zune', initialRoute: '/', routes: <String, WidgetBuilder>{
           '/': (BuildContext context) => SplashScreen(),

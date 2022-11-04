@@ -1,9 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.projectk.zune">
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:name="${applicationName}"
         android:label="Zune"
         android:icon="@mipmap/launcher_icon">
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -23,9 +29,14 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+          
+
         </activity>
         <meta-data
             android:name="flutterEmbedding"
             android:value="2"/>
     </application>
+
+   
 </manifest>
