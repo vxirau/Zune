@@ -1,6 +1,9 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 //FLUTTER NATIVE
 import 'dart:math';
+
 import 'package:flutter/material.dart';
+
 import 'package:zune/src/models/models.dart';
 
 //MODELS
@@ -16,8 +19,13 @@ import 'package:provider/provider.dart';
 import 'package:zune/src/providers/ui_provider.dart';
 
 class ARView extends StatefulWidget {
+  Function callback;
+  ARView({
+    required this.callback,
+  });
   @override
   State<ARView> createState() => _ARViewState();
+
 }
 
 class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
@@ -246,6 +254,7 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
                           if (isSuccessful) {
                             maxSize = 0.9;
                             dialog = results;
+                            widget.callback(dialog);
                             setState(() {});
                             controller.forward();
                           }

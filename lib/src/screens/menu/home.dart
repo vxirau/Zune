@@ -1,12 +1,13 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 //FLUTTER NATIVE
 
 import 'package:flutter/material.dart';
 import 'package:google_static_maps_controller/google_static_maps_controller.dart';
 import 'package:provider/provider.dart';
+
+import 'package:zune/src/models/tflite/recognition.dart';
 import 'package:zune/src/providers/loc_provider.dart';
 import 'package:zune/src/widgets/cards/shadow_card.dart';
-
-
 
 //WIDGETS
 import 'package:zune/src/widgets/text/custom_text.dart';
@@ -18,14 +19,14 @@ import '../../models/utilities/types.dart';
 ScrollController? _controller = ScrollController();
 ScrollController? _controller2 = ScrollController();
 
-
-
-
 List<bool> pressed = List<bool>.filled(Types.icons.length, true);
 
-
-
 class Home extends StatefulWidget {
+  List<Recognition> llista;
+  Home(
+    this.llista,
+  );
+
   @override
   _HomeState createState() => _HomeState();
 }
@@ -33,16 +34,19 @@ class Home extends StatefulWidget {
 
 
 class _HomeState extends State<Home> {
-    
 
+  List<Recognition> llistaAux = [];
 
   @override
   Widget build(BuildContext context) {
 
     final locProvider = Provider.of<LocProvider>(context);
-
+    final textController = TextEditingController();
+    
+    
     return Scaffold(
         backgroundColor: Colors.transparent,
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Image.asset(
             'assets/images/logo.png',
@@ -69,26 +73,44 @@ class _HomeState extends State<Home> {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
-              Container(
-                child: Center(
+              SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  margin: EdgeInsets.only(left: 15, right: 15),
+                  height: 180,
                   child: locProvider.getValuePosition != null
-                  ? StaticMap(
-                    height: 150,
-                    width:  MediaQuery.of(context).size.width - 25,
-                    scaleToDevicePixelRatio: true,
-                    googleApiKey: "AIzaSyCnbEUi_fwEpV_TTmgwP6lBArhm-azrhC8",
-                    markers: [
-                      Marker(
-                        color: HexColor.fromHex("#DBFBB5"),
-                        label: "X",
-                        locations: [
-                          GeocodedLocation.latLng(locProvider.getValuePosition!.latitude, locProvider.getValuePosition!.longitude),
-                        ],
-                      ),
+                    ? StaticMap(
+                      zoom: 17,
+                      maptype: StaticMapType.hybrid,
+                      scaleToDevicePixelRatio: true,
+                      googleApiKey: "AIzaSyCnbEUi_fwEpV_TTmgwP6lBArhm-azrhC8",
+                      styles: [
+                        MapStyle(
+                          feature: StyleFeature.road,
+                          rules: [
+                            StyleRule.color(HexColor.fromHex("#DBFBB5")),
+                        ]),
+                        MapStyle(
+                          element: StyleElement.geometry,
+                          feature: StyleFeature.landscape.natural,
+                          rules: const [
+                            StyleRule.color(Colors.grey),
+                          ],
+                        )
                       ],
-                  ) :
-                  CircularProgressIndicator(),
+                      markers: [
+                        Marker(
+                          color: HexColor.fromHex("#8A66E6"),
+                          label: "X",
+                          locations: [
+                            GeocodedLocation.latLng(locProvider.getValuePosition!.latitude, locProvider.getValuePosition!.longitude),
+                          ],
+                        ),
+                        ],
+                    ) :
+                    CircularProgressIndicator(),
+                  
                 ),
               ),
               SizedBox(height: 20),
@@ -100,21 +122,36 @@ class _HomeState extends State<Home> {
                     color: HexColor.fromHex("#343334"),
                     wantsShadow: false,
                     child: TextField(
+                      controller: textController,
                       style: TextStyle(color:HexColor.fromHex("#DBFBB5")),
                       decoration: InputDecoration(
                         border: InputBorder.none,
-                        suffixIcon: Icon(
-                          Icons.search, 
-                          size: 36,
-                          color: HexColor.fromHex("#DBFBB5")),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.search), 
+                          iconSize: 24,
+                          color: HexColor.fromHex("#DBFBB5"),
+                          onPressed: () {
+                            llistaAux = List.from(widget.llista);   
+                            llistaAux.removeWhere((item) => item.label != textController.text);
+                            textController.text = "";
+                            FocusScope.of(context).unfocus();
+                            setState(() {});
+                          },
+                        ),
                         hintText: 'Search object...',
-                        hintStyle: TextStyle(color: HexColor.fromHex("#DBFBB5").withOpacity(0.5))
+                        hintStyle: TextStyle(color: HexColor.fromHex("#DBFBB5").withOpacity(0.5)),
                       ),
+                      onSubmitted: (value) {
+                        llistaAux = List.from(widget.llista); 
+                        llistaAux.removeWhere((item) => item.label != textController.text);
+                        textController.text = "";
+                        setState(() {});
+                      },
                     ),  
                     ),
                   ),
                 ),
-              Align(
+             Align(
                 alignment: Alignment.centerLeft,
                     child: Scrollbar(
                       thumbVisibility: true,
@@ -165,19 +202,75 @@ class _HomeState extends State<Home> {
                     scrollDirection: Axis.horizontal,
                     controller: _controller2,
                     child: Row(
-                      children: List.generate(Types.icons.length, (index){
+                      children: [ llistaAux.length != 0 ? SizedBox(
+                        height: 200, 
+                        width: MediaQuery.of(context).size.width, 
+                        child: new ListView.builder(scrollDirection: Axis.horizontal, itemCount: llistaAux.length, itemBuilder: (BuildContext context, int index) {
+                          return Container(
+                              margin: EdgeInsets.only(left: 15, top: 20),
+                              child: ShadowCard(
+                                height: 200, 
+                                width: 200, 
+                                color: HexColor.fromHex("#343334"),
+                                wantsShadow: false,
+                                child: CustomText(
+                                  llistaAux[index].label,
+                                  color: HexColor.fromHex("#DBFBB5"),
+                                  fontSize: 20,
+                                ),
+                                )
+                            );
+                          })
+                      ) : Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                          height: 200,
+                          width: MediaQuery.of(context).size.width-25,
+                          margin: EdgeInsets.only(left: 15, top: 20),
+                          child: CustomText(
+                              "No results",
+                              color: HexColor.fromHex("#DBFBB5"),
+                              fontSize: 20,
+                              ),
+                          ),
+                      )
+                      ],               
+                    )
+                          
+                    /*Row(
+                      children: llistaAux.length != 0 ? List.generate(llistaAux.length, (index){
+                        print("PRINTING: " + llistaAux.toString());
                         return Container(
                           margin: EdgeInsets.only(left: 15, top: 20),
                           child: ShadowCard(
-                            height: 230, 
+                            height: 200, 
                             width: 200, 
                             color: HexColor.fromHex("#343334"),
                             wantsShadow: false,
-                            child: Icon(Types.icons[index]!.data, color: HexColor.fromHex("#DBFBB5"), size: 25,)
+                            child: CustomText(
+                              llistaAux[index].label,
+                              color: HexColor.fromHex("#DBFBB5"),
+                              fontSize: 20,
                             ),
+                            )
+                            
                         );
-                      }),       
-                    ),
+                      }): [Container(
+                        margin: EdgeInsets.only(left: 15, top: 20),
+                        child: ShadowCard(
+                          height: 200, 
+                          width: MediaQuery.of(context).size.width - 25, 
+                          color: HexColor.fromHex("#343334"),
+                          wantsShadow: false,
+                          child: CustomText(
+                            "No results",
+                            color: HexColor.fromHex("#DBFBB5"),
+                            fontSize: 20,
+                          ),
+                          )
+                          
+                      )],       
+                    ),*/
                   ),
                 ),
               ),

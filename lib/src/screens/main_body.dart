@@ -1,8 +1,10 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 //FLUTTER NATIVE
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:zune/src/models/tflite/recognition.dart';
 
 //MODELS
 import 'package:zune/src/models/utilities/app_colors.dart';
@@ -29,6 +31,7 @@ class MainBody extends StatefulWidget {
 }
 
 class _MainBodyState extends State<MainBody> with SingleTickerProviderStateMixin {
+  List<Recognition> llista = [];
   late AnimationController _animationController;
   late Animation<double> animation;
   late CurvedAnimation curve;
@@ -114,7 +117,11 @@ void dispose() {
                 //other params
               )
             : null,
-        body: SafeArea(child: _HomePageBody()));
+        body: SafeArea(child: _HomePageBody(llista, (llista){
+          this.llista = llista;
+          setState(() {
+          });    
+        })));
   }
 
   Widget _buildFAB(context, uiProvider, width, height, {key}) => FloatingActionButton(
@@ -133,7 +140,10 @@ void dispose() {
 
     Navigator.of(context).push(PageRouteBuilder(
       transitionDuration: Duration(milliseconds: 500),
-      pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) => ARView(),
+      pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) => ARView(callback:(llista){
+          this.llista = llista;
+          setState(() {
+          });}),
       transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) => _buildTransition(child, animation, Size(80, 80), Offset(width / 2, height), width, height, uiProvider),
     ));
   }
@@ -192,6 +202,13 @@ void dispose() {
 }
 
 class _HomePageBody extends StatelessWidget {
+  Function results;
+  List<Recognition> list;
+
+  _HomePageBody(
+    this.list,
+    this.results,
+  );
   @override
   Widget build(BuildContext context) {
     final uiProvider = Provider.of<UiProvider>(context);
@@ -199,12 +216,12 @@ class _HomePageBody extends StatelessWidget {
 
     switch (uiProvider.selectedMenuOpt) {
       case 0:
-        return Home();
+        return Home(list);
       case 1:
         return Profile();
 
       case 2:
-        return ARView();
+        return ARView(callback: results,);
 
       default:
         return Container(
