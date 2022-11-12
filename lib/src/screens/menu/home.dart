@@ -3,10 +3,13 @@
 
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
+import 'package:flutter_config/flutter_config.dart';
 import 'package:google_static_maps_controller/google_static_maps_controller.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'package:zune/src/models/tflite/recognition.dart';
 import 'package:zune/src/providers/loc_provider.dart';
@@ -43,6 +46,8 @@ class _HomeState extends State<Home> {
     final locProvider = Provider.of<LocProvider>(context);
     final recognitionProvider = Provider.of<RecognitionProvider>(context);
     final textController = TextEditingController();
+
+    double width = MediaQuery.of(context).size.width;
 
     if (firstTime) {
       llistaAux = recognitionProvider.recognitions;
@@ -95,33 +100,23 @@ class _HomeState extends State<Home> {
               child: Container(
                 margin: EdgeInsets.only(left: 15, right: 15),
                 height: 180,
-                child: locProvider.getValuePosition != null
-                    ? StaticMap(
-                        zoom: 17,
-                        maptype: StaticMapType.hybrid,
-                        scaleToDevicePixelRatio: true,
-                        googleApiKey: "AIzaSyCnbEUi_fwEpV_TTmgwP6lBArhm-azrhC8",
-                        styles: [
-                          MapStyle(feature: StyleFeature.road, rules: [
-                            StyleRule.color(HexColor.fromHex("#DBFBB5")),
-                          ]),
-                          MapStyle(
-                            element: StyleElement.geometry,
-                            feature: StyleFeature.landscape.natural,
-                            rules: const [
-                              StyleRule.color(Colors.grey),
-                            ],
-                          )
-                        ],
-                        markers: [
-                          Marker(
-                            color: HexColor.fromHex("#8A66E6"),
-                            label: "X",
-                            locations: [
-                              GeocodedLocation.latLng(locProvider.getValuePosition!.latitude, locProvider.getValuePosition!.longitude),
-                            ],
+                child: locProvider.currentPosition != null
+                    ? CachedNetworkImage(
+                        placeholder: (context, url) => Center(
+                            child: CircularProgressIndicator(
+                          color: HexColor.fromHex("#DBFBB5"),
+                        )),
+                        imageBuilder: (context, imageProvider) => Container(
+                          width: width - 20,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
                           ),
-                        ],
+                        ),
+                        errorWidget: (context, url, error) => Center(child: CustomText("Not Available", fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey)),
+                        imageUrl: locProvider.generateStaticURL(width: width - 30, height: 300),
+                        fit: BoxFit.cover,
+                        width: (width - 20),
                       )
                     : CircularProgressIndicator(),
               ),

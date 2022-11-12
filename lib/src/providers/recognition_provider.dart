@@ -10,16 +10,12 @@ class RecognitionProvider extends ChangeNotifier {
     if (db.isNotEmpty) {
       recognitions = db.values.toList().cast<Recognition>();
       notifyListeners();
-    } else {
-      print("DB ESTA BUIDA");
-    }
+    } else {}
   }
 
   void addRecognition(Recognition recognition) {
-    print("GUARDEM OBJECTE RECOGNITION");
     recognition.isSaved = true;
     recognitions.add(recognition);
-    //db.add(recognition);
     db.put(recognition.id, recognition);
     notifyListeners();
   }

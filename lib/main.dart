@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_config/flutter_config.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:zune/src/models/tflite/recognition.dart';
 import 'package:zune/src/providers/recognition_provider.dart';
@@ -18,6 +19,8 @@ void main() async {
   Hive.registerAdapter(RecognitionAdapter());
 
   await Hive.openBox<Recognition>('recognition');
+
+  await FlutterConfig.loadEnvVariables();
 
   runApp(MyApp());
 }
