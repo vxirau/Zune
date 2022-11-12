@@ -22,6 +22,9 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   bool dialegEnsenyat = false;
   bool estaFentFuture = false;
+  bool _visible = false;
+  bool done = false;
+  bool end = false;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +32,20 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (SplashScreen.hasLoaded) {
       return MainBody();
+    }
+
+    if (!done) {
+      done = true;
+      Future.microtask(() => Future.delayed(Duration(seconds: 1), () {
+            setState(() {
+              _visible = !_visible;
+              Timer(Duration(milliseconds: 500), () {
+                setState(() {
+                  end = true;
+                });
+              });
+            });
+          }));
     }
 
     return FutureBuilder(
@@ -49,10 +66,14 @@ class _SplashScreenState extends State<SplashScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CustomText(
-                    "Loading Screen :)",
-                    color: Colors.white,
-                    fontSize: 30,
+                  AnimatedOpacity(
+                    opacity: _visible ? 1.0 : 0.0,
+                    duration: Duration(milliseconds: 500),
+                    child: Image.asset(
+                      'assets/images/header.png',
+                      fit: BoxFit.contain,
+                      height: 120,
+                    ),
                   )
                 ],
               ),
@@ -81,6 +102,8 @@ class _SplashScreenState extends State<SplashScreen> {
     final rprov = Provider.of<RecognitionProvider>(context, listen: false);
 
     await rprov.getAllRecognitions();
+
+    await waitWhile(() => !end);
 
     return 1;
   }

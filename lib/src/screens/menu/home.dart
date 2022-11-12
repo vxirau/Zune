@@ -1,6 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 //FLUTTER NATIVE
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:google_static_maps_controller/google_static_maps_controller.dart';
@@ -50,18 +52,30 @@ class _HomeState extends State<Home> {
     return Scaffold(
         backgroundColor: Colors.transparent,
         resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          title: Image.asset(
-            'assets/images/logo.png',
-            fit: BoxFit.contain,
-            height: 52,
-          ),
-          centerTitle: true,
-          backgroundColor: Colors.transparent,
-          elevation: 0.0,
-        ),
+        appBar: Platform.isAndroid
+            ? null
+            : AppBar(
+                title: Image.asset(
+                  'assets/images/logo.png',
+                  fit: BoxFit.contain,
+                  height: 52,
+                ),
+                centerTitle: true,
+                backgroundColor: Colors.transparent,
+                elevation: 0.0,
+              ),
         body: Container(
           child: Column(children: <Widget>[
+            Platform.isAndroid
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.contain,
+                      height: 52,
+                    ),
+                  )
+                : Container(),
             Padding(
               padding: EdgeInsets.only(left: 15, top: 15),
               child: Align(
@@ -235,43 +249,7 @@ class _HomeState extends State<Home> {
                                 ),
                               )
                       ],
-                    )
-
-                    /*Row(
-                      children: llistaAux.length != 0 ? List.generate(llistaAux.length, (index){
-                        print("PRINTING: " + llistaAux.toString());
-                        return Container(
-                          margin: EdgeInsets.only(left: 15, top: 20),
-                          child: ShadowCard(
-                            height: 200, 
-                            width: 200, 
-                            color: HexColor.fromHex("#343334"),
-                            wantsShadow: false,
-                            child: CustomText(
-                              llistaAux[index].label,
-                              color: HexColor.fromHex("#DBFBB5"),
-                              fontSize: 20,
-                            ),
-                            )
-                            
-                        );
-                      }): [Container(
-                        margin: EdgeInsets.only(left: 15, top: 20),
-                        child: ShadowCard(
-                          height: 200, 
-                          width: MediaQuery.of(context).size.width - 25, 
-                          color: HexColor.fromHex("#343334"),
-                          wantsShadow: false,
-                          child: CustomText(
-                            "No results",
-                            color: HexColor.fromHex("#DBFBB5"),
-                            fontSize: 20,
-                          ),
-                          )
-                          
-                      )],       
-                    ),*/
-                    ),
+                    )),
               ),
             ),
           ]),

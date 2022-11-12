@@ -53,7 +53,7 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
-    controller = AnimationController(vsync: this, duration: Duration(seconds: 1));
+    controller = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
     super.initState();
   }
 
@@ -212,7 +212,7 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
                                       ..addListener(() {
                                         setState(() {});
                                       });
-                                    _dragController.animateTo(0.0, duration: Duration(milliseconds: 500), curve: Curves.easeOut);
+                                    _dragController.animateTo(0.0, duration: Duration(milliseconds: 200), curve: Curves.easeOut);
                                     setState(() {});
                                     await controller.reverse();
 
@@ -319,7 +319,7 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
                 },
                 animationType: DialogTransitionType.fadeScale,
                 curve: Curves.fastOutSlowIn,
-                duration: Duration(milliseconds: 500),
+                duration: Duration(milliseconds: 200),
               );
             }))
         .toList();

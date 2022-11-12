@@ -25,6 +25,8 @@ class _ObjectDialogState extends State<ObjectDialog> {
   @override
   Widget build(BuildContext context) {
     final recProvider = Provider.of<RecognitionProvider>(context);
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
 
     if (!firstTime) {
       controller.text = widget.obj.action ??= "";
@@ -32,7 +34,7 @@ class _ObjectDialogState extends State<ObjectDialog> {
     }
 
     return Container(
-        height: MediaQuery.of(context).size.height * 0.76,
+        height: height * 0.76,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -77,7 +79,7 @@ class _ObjectDialogState extends State<ObjectDialog> {
                       alignment: Alignment.centerLeft,
                       child: _buildBasicCard(this.widget.obj.action ??= "", context),
                     ),
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+                    SizedBox(height: height * 0.05),
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Row(
@@ -93,7 +95,7 @@ class _ObjectDialogState extends State<ObjectDialog> {
                                 fontWeight: FontWeight.bold,
                               ),
                               style: TextButton.styleFrom(backgroundColor: Color(0xFFDBFBB5), padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20))),
-                          SizedBox(width: MediaQuery.of(context).size.width * 0.15),
+                          SizedBox(width: width * 0.15),
                           TextButton(
                               onPressed: () {
                                 if (controller.text.isNotEmpty) {
@@ -139,28 +141,22 @@ class _ObjectDialogState extends State<ObjectDialog> {
       child: Container(
         width: width,
         height: height * 0.3,
-        child: SizedBox(
-          width: width - 28,
-          height: height * 0.3,
-          child: Expanded(
-            child: TextField(
-              controller: controller,
-              expands: true,
-              minLines: null,
-              maxLines: null,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                contentPadding: EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
-                hintText: "Enter your text",
-              ),
-              keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.newline,
-            ),
+        child: TextField(
+          controller: controller,
+          expands: true,
+          minLines: null,
+          maxLines: null,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            errorBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
+            contentPadding: EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+            hintText: "Enter your text",
           ),
+          keyboardType: TextInputType.multiline,
+          textInputAction: TextInputAction.newline,
         ),
       ),
       color: Colors.grey,

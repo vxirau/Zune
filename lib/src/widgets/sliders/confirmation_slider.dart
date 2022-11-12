@@ -89,7 +89,6 @@ class _DraggableConfirmationSliderState extends State<DraggableConfirmationSlide
 
   void dragEnded() {
     if (verticalPos > 120) {
-      print("ACCEPTED");
       widget.onEnded(true);
     } else {
       verticalPos = 30;
