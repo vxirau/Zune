@@ -156,7 +156,7 @@ class _ObjectDialogState extends State<ObjectDialog> {
             hintText: "Enter your text",
           ),
           keyboardType: TextInputType.multiline,
-          textInputAction: TextInputAction.newline,
+          textInputAction: TextInputAction.done,
         ),
       ),
       color: Colors.grey,

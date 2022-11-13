@@ -287,14 +287,16 @@ class _ARViewState extends State<ARView> with SingleTickerProviderStateMixin {
     if (mounted) {
       final recProvider = Provider.of<RecognitionProvider>(context, listen: false);
       setState(() {
-        for (var j = 0; j < recProvider.recognitions.length; j++) {
-          if (recProvider.recognitions[j].label == results[j].label) {
-            results[j].action = recProvider.recognitions[j].action;
-            results[j].type = recProvider.recognitions[j].type;
-            results[j].isSaved = true;
-          }
-        }
-        this.results = results;
+        for(var i = 0; i < results.length; i++){
+          for (var j = 0; j < recProvider.recognitions.length; j++) {
+              if (recProvider.recognitions[j].label == results[i].label) {
+                results[i].action = recProvider.recognitions[j].action;
+                results[i].type = recProvider.recognitions[j].type;
+                results[i].isSaved = true;
+              }
+            }
+         }
+          this.results = results;   
       });
     }
   }
